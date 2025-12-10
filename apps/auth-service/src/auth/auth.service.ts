@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { User } from '@repo/db';
-import * as bcrypt from 'bcryptjs';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { User } from "@repo/db";
+import * as bcrypt from "bcryptjs";
 
 @Injectable()
 export class AuthService {
@@ -11,16 +11,24 @@ export class AuthService {
     private userRepository: Repository<User>,
   ) {}
 
-  async validateUser(email: string, pass: string): Promise<Omit<User, 'passwordHash'> | null> {
+  async validateUser(
+    email: string,
+    pass: string,
+  ): Promise<Omit<User, "passwordHash"> | null> {
     const user = await this.userRepository.findOne({ where: { email } });
-    if (user && await bcrypt.compare(pass, user.passwordHash)) {
+    if (user && (await bcrypt.compare(pass, user.passwordHash))) {
       const { passwordHash, ...result } = user;
+      void passwordHash;
       return result;
     }
     return null;
   }
 
-  async createUser(username: string, email: string, pass: string): Promise<User> {
+  async createUser(
+    username: string,
+    email: string,
+    pass: string,
+  ): Promise<User> {
     const salt = await bcrypt.genSalt();
     const passwordHash = await bcrypt.hash(pass, salt);
     const user = this.userRepository.create({
