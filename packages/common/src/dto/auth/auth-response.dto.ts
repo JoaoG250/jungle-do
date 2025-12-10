@@ -1,4 +1,4 @@
-import { User } from '@repo/db';
+import { User } from "@repo/db";
 
 export type RegisterResponse = User;
 
