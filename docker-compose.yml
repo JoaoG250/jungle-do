@@ -1,0 +1,148 @@
+version: "3.8"
+
+services:
+  web:
+    container_name: web
+    build:
+      context: .
+      dockerfile: ./apps/web/Dockerfile
+      target: development
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/apps/api-gateway/node_modules
+    environment:
+      - NODE_ENV=development
+
+  api-gateway:
+    container_name: api-gateway
+    build:
+      context: .
+      dockerfile: ./apps/api-gateway/Dockerfile
+      target: development
+    ports:
+      - "3001:3001"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/apps/api-gateway/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+    depends_on:
+      db:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+    networks:
+      - jungle-do-network
+
+  auth-service:
+    container_name: auth-service
+    build:
+      context: .
+      dockerfile: ./apps/auth-service/Dockerfile
+      target: development
+    ports:
+      - "3002:3002"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/apps/auth-service/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=3002
+    depends_on:
+      db:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+    networks:
+      - jungle-do-network
+
+  tasks-service:
+    container_name: tasks-service
+    build:
+      context: .
+      dockerfile: ./apps/tasks-service/Dockerfile
+      target: development
+    ports:
+      - "3003:3003"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/apps/tasks-service/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=3003
+    depends_on:
+      db:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+    networks:
+      - jungle-do-network
+
+  notifications-service:
+    container_name: notifications-service
+    build:
+      context: .
+      dockerfile: ./apps/notifications-service/Dockerfile
+      target: development
+    ports:
+      - "3004:3004"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/apps/notifications-service/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=3004
+    depends_on:
+      db:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+    networks:
+      - jungle-do-network
+
+  db:
+    image: postgres:18-alpine3.23
+    container_name: db
+    attach: false
+    ports:
+      - "5432:5432"
+    networks:
+      - jungle-do-network
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - ./dotenv/db.env
+
+  rabbitmq:
+    image: rabbitmq:4.1.6-management-alpine
+    container_name: rabbitmq
+    attach: false
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - jungle-do-network
+    env_file:
+      - ./dotenv/rabbitmq.env
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+volumes:
+  postgres_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
+
+networks:
+  jungle-do-network:
+    driver: bridge
