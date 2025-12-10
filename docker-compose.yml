@@ -31,6 +31,8 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3001
+    env_file:
+      - ./dotenv/api-gateway.env
     depends_on:
       db:
         condition: service_started
@@ -54,6 +56,8 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3002
+    env_file:
+      - ./dotenv/auth-service.env
     depends_on:
       db:
         condition: service_started
