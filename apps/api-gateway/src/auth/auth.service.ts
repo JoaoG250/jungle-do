@@ -11,8 +11,8 @@ import {
 } from "@repo/common/constants";
 import { AuthUser, JwtPayload } from "@repo/common/types/auth";
 import {
-  RpcCreateUserDto,
-  RpcValidateUserDto,
+  CreateUserRpcDto,
+  ValidateUserRpcDto,
 } from "@repo/common/dto/auth-rpc";
 import { ConfigKeys } from "../config.schema";
 
@@ -39,9 +39,9 @@ export class AuthService implements OnModuleInit {
   }
 
   async validateUser(email: string, pass: string): Promise<User | null> {
-    const payload: RpcValidateUserDto = { email, pass };
+    const payload: ValidateUserRpcDto = { email, pass };
     return firstValueFrom(
-      this.client.send<User | null, RpcValidateUserDto>(
+      this.client.send<User | null, ValidateUserRpcDto>(
         RPC_AUTH_PATTERNS.VALIDATE_USER,
         payload,
       ),
@@ -53,9 +53,9 @@ export class AuthService implements OnModuleInit {
     email: string,
     pass: string,
   ): Promise<User> {
-    const payload: RpcCreateUserDto = { username, email, pass };
+    const payload: CreateUserRpcDto = { username, email, pass };
     return firstValueFrom(
-      this.client.send<User, RpcCreateUserDto>(
+      this.client.send<User, CreateUserRpcDto>(
         RPC_AUTH_PATTERNS.CREATE_USER,
         payload,
       ),

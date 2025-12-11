@@ -1,6 +1,10 @@
-import { User } from "@repo/db";
-
-export type RegisterResponse = User;
+export interface RegisterResponse {
+  id: string;
+  email: string;
+  username: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 export interface LoginResponse {
   accessToken: string;

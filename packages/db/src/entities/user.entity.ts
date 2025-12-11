@@ -4,12 +4,23 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToMany,
+  OneToMany,
 } from "typeorm";
+
+import { Task } from "./task.entity";
+import { Comment } from "./comment.entity";
 
 @Entity("users")
 export class User {
   @PrimaryGeneratedColumn("uuid")
   id: string;
+
+  @CreateDateColumn({ name: "created_at" })
+  createdAt: Date;
+
+  @UpdateDateColumn({ name: "updated_at" })
+  updatedAt: Date;
 
   @Column({ unique: true })
   email: string;
@@ -20,9 +31,9 @@ export class User {
   @Column({ name: "password_hash" })
   passwordHash: string;
 
-  @CreateDateColumn({ name: "created_at" })
-  createdAt: Date;
+  @ManyToMany(() => Task, (task) => task.assignees)
+  assignedTasks: Task[];
 
-  @UpdateDateColumn({ name: "updated_at" })
-  updatedAt: Date;
+  @OneToMany(() => Comment, (comment) => comment.author)
+  comments: Comment[];
 }

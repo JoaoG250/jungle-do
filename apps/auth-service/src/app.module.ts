@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { User } from "@repo/db";
+import { User, Task, Comment } from "@repo/db";
 import { AuthModule } from "./auth/auth.module";
 import { validationSchema, ConfigKeys } from "./config.schema";
 
@@ -20,7 +20,7 @@ import { validationSchema, ConfigKeys } from "./config.schema";
         username: configService.get<string>(ConfigKeys.POSTGRES_USER),
         password: configService.get<string>(ConfigKeys.POSTGRES_PASSWORD),
         database: configService.get<string>(ConfigKeys.POSTGRES_DB),
-        entities: [User],
+        entities: [User, Task, Comment],
         synchronize: true,
       }),
       inject: [ConfigService],

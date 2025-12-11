@@ -1,2 +1,2 @@
-export * from "./rpc-validate-user.dto";
-export * from "./rpc-create-user.dto";
+export * from "./create-user.rpc.dto";
+export * from "./validate-user.rpc.dto";

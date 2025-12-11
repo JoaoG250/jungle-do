@@ -1,6 +1,10 @@
 import { IsString, IsEmail, MinLength } from "class-validator";
 
-export class RpcValidateUserDto {
+export class CreateUserRpcDto {
+  @IsString()
+  @MinLength(3)
+  username: string;
+
   @IsEmail()
   email: string;
 

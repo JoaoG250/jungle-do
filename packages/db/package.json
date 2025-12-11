@@ -17,6 +17,7 @@
     "@types/node": "^22.10.7"
   },
   "dependencies": {
-    "typeorm": "^0.3.20"
+    "typeorm": "^0.3.20",
+    "@repo/common": "workspace:*"
   }
 }
