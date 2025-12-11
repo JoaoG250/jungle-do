@@ -6,25 +6,37 @@ import { PassportModule } from "@nestjs/passport";
 import { JwtStrategy } from "./jwt.strategy";
 import { ClientsModule, Transport } from "@nestjs/microservices";
 import { RABBITMQ_CLIENTS } from "@repo/common/constants";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import { ConfigKeys } from "src/config.schema";
 
 @Module({
   imports: [
     PassportModule,
-    JwtModule.register({
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: "15m" },
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>(ConfigKeys.JWT_SECRET),
+        signOptions: {
+          expiresIn: configService.get<number>(ConfigKeys.JWT_EXPIRATION_TIME),
+        },
+      }),
+      inject: [ConfigService],
     }),
-    ClientsModule.register([
+    ClientsModule.registerAsync([
       {
         name: RABBITMQ_CLIENTS.AUTH_SERVICE,
-        transport: Transport.RMQ,
-        options: {
-          urls: [process.env.RABBITMQ_URL],
-          queue: "auth_queue",
-          queueOptions: {
-            durable: false,
+        imports: [ConfigModule],
+        useFactory: async (configService: ConfigService) => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [configService.get<string>(ConfigKeys.RABBITMQ_URL)],
+            queue: "auth_queue",
+            queueOptions: {
+              durable: false,
+            },
           },
-        },
+        }),
+        inject: [ConfigService],
       },
     ]),
   ],

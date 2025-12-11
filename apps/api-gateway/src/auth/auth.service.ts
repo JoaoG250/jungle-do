@@ -1,4 +1,5 @@
 import { Injectable, Inject, OnModuleInit } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { ClientProxy } from "@nestjs/microservices";
 import { firstValueFrom } from "rxjs";
 import { JwtService } from "@nestjs/jwt";
@@ -8,13 +9,25 @@ import {
   REFRESH_TOKEN_COOKIE_NAME,
 } from "@repo/common/constants";
 import { AuthUser, JwtPayload } from "@repo/common/types/auth";
+import { ConfigKeys } from "../config.schema";
 
 @Injectable()
 export class AuthService implements OnModuleInit {
+  private readonly refreshJwtSecret: string;
+  private readonly refreshJwtExpirationTime: number;
+
   constructor(
     @Inject(RABBITMQ_CLIENTS.AUTH_SERVICE) private client: ClientProxy,
     private jwtService: JwtService,
-  ) {}
+    private configService: ConfigService,
+  ) {
+    this.refreshJwtSecret = this.configService.get<string>(
+      ConfigKeys.JWT_REFRESH_SECRET,
+    );
+    this.refreshJwtExpirationTime = this.configService.get<number>(
+      ConfigKeys.JWT_REFRESH_EXPIRATION_TIME,
+    );
+  }
 
   async onModuleInit() {
     await this.client.connect();
@@ -45,14 +58,14 @@ export class AuthService implements OnModuleInit {
     return {
       accessToken: this.jwtService.sign(payload),
       refreshToken: this.jwtService.sign(payload, {
-        secret: process.env.JWT_REFRESH_SECRET as string,
-        expiresIn: process.env.JWT_REFRESH_EXPIRATION_TIME as any,
+        secret: this.refreshJwtSecret,
+        expiresIn: this.refreshJwtExpirationTime,
       }),
     };
   }
 
   getCookieWithJwtRefreshToken(refreshToken: string) {
-    return `${REFRESH_TOKEN_COOKIE_NAME}=${refreshToken}; HttpOnly; Path=/auth/refresh; Max-Age=${process.env.JWT_REFRESH_EXPIRATION_TIME}`;
+    return `${REFRESH_TOKEN_COOKIE_NAME}=${refreshToken}; HttpOnly; Path=/auth/refresh; Max-Age=${this.refreshJwtExpirationTime}`;
   }
 
   getCookieForLogOut() {
@@ -62,7 +75,7 @@ export class AuthService implements OnModuleInit {
   async verifyRefreshToken(refreshToken: string): Promise<JwtPayload | null> {
     try {
       return this.jwtService.verify<JwtPayload>(refreshToken, {
-        secret: process.env.JWT_REFRESH_SECRET,
+        secret: this.refreshJwtSecret,
       });
     } catch {
       return null;
