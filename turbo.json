@@ -3,13 +3,16 @@
   "ui": "tui",
   "globalEnv": [
     "PORT",
-    "JWT_SECRET",
     "RABBITMQ_URL",
     "POSTGRES_HOST",
     "POSTGRES_PORT",
     "POSTGRES_USER",
     "POSTGRES_PASSWORD",
-    "POSTGRES_DB"
+    "POSTGRES_DB",
+    "JWT_SECRET",
+    "JWT_EXPIRATION_TIME",
+    "JWT_REFRESH_SECRET",
+    "JWT_REFRESH_EXPIRATION_TIME"
   ],
   "tasks": {
     "build": {
