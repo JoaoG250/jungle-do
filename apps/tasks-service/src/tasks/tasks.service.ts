@@ -1,8 +1,12 @@
-import { Injectable, HttpStatus } from "@nestjs/common";
-import { RpcException } from "@nestjs/microservices";
+import { Injectable, Inject, HttpStatus } from "@nestjs/common";
+import { RpcException, ClientProxy } from "@nestjs/microservices";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Task, Comment, User } from "@repo/db";
+import {
+  WEBSOCKET_NOTIFICATION_PATTERNS,
+  RABBITMQ_CLIENTS,
+} from "@repo/common/constants";
 import {
   CreateTaskRpcDto,
   UpdateTaskRpcDto,
@@ -19,6 +23,8 @@ export class TasksService {
     private readonly commentRepository: Repository<Comment>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @Inject(RABBITMQ_CLIENTS.NOTIFICATIONS_SERVICE)
+    private readonly client: ClientProxy,
   ) {}
 
   async create(createTaskDto: CreateTaskRpcDto): Promise<Task> {
@@ -27,7 +33,9 @@ export class TasksService {
       ...taskData,
       assignees: assigneeIds?.map((id) => ({ id })) || [],
     });
-    return this.taskRepository.save(task);
+    const savedTask = await this.taskRepository.save(task);
+    this.client.emit(WEBSOCKET_NOTIFICATION_PATTERNS.TASK_CREATED, savedTask);
+    return savedTask;
   }
 
   async findAll(
@@ -93,7 +101,9 @@ export class TasksService {
         status: HttpStatus.NOT_FOUND,
       });
     }
-    return this.taskRepository.save(task);
+    const savedTask = await this.taskRepository.save(task);
+    this.client.emit(WEBSOCKET_NOTIFICATION_PATTERNS.TASK_UPDATED, savedTask);
+    return savedTask;
   }
 
   async remove(id: string): Promise<boolean> {
@@ -135,7 +145,12 @@ export class TasksService {
       author: { id: authorId },
       task: { id: taskId },
     });
-    return this.commentRepository.save(comment);
+    const savedComment = await this.commentRepository.save(comment);
+    this.client.emit(
+      WEBSOCKET_NOTIFICATION_PATTERNS.COMMENT_CREATED,
+      savedComment,
+    );
+    return savedComment;
   }
 
   async findAllComments(taskId: string): Promise<Comment[]> {

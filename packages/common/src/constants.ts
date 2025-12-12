@@ -1,11 +1,13 @@
 export const RABBITMQ_CLIENTS = {
   AUTH_SERVICE: "AUTH_SERVICE",
   TASKS_SERVICE: "TASKS_SERVICE",
+  NOTIFICATIONS_SERVICE: "NOTIFICATIONS_SERVICE",
 } as const;
 
 export const RABBITMQ_QUEUES = {
   AUTH_QUEUE: "auth_queue",
   TASKS_QUEUE: "tasks_queue",
+  NOTIFICATIONS_QUEUE: "notifications_queue",
 } as const;
 
 export const RPC_AUTH_PATTERNS = {
@@ -20,6 +22,12 @@ export const RPC_TASK_PATTERNS = {
   CREATE_COMMENT: "tasks.create_comment",
   LIST_COMMENTS: "tasks.list_comments",
   DELETE_TASK: "tasks.delete_task",
+} as const;
+
+export const WEBSOCKET_NOTIFICATION_PATTERNS = {
+  TASK_CREATED: "task.created",
+  TASK_UPDATED: "task.updated",
+  COMMENT_CREATED: "comment.created",
 } as const;
 
 export const PRIORITY = {
@@ -41,3 +49,12 @@ export const STATUS = {
 export type Status = (typeof STATUS)[keyof typeof STATUS];
 
 export const REFRESH_TOKEN_COOKIE_NAME = "jungle-do.refresh-token";
+
+export const NOTIFICATION_TYPE = {
+  TASK_ASSIGNED: "TASK_ASSIGNED",
+  TASK_UPDATED: "TASK_UPDATED",
+  COMMENT_CREATED: "COMMENT_CREATED",
+} as const;
+
+export type NotificationType =
+  (typeof NOTIFICATION_TYPE)[keyof typeof NOTIFICATION_TYPE];
