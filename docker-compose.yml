@@ -35,9 +35,9 @@ services:
       - ./dotenv/api-gateway.env
     depends_on:
       db:
-        condition: service_started
+        condition: service_healthy
       rabbitmq:
-        condition: service_started
+        condition: service_healthy
     networks:
       - jungle-do-network
 
@@ -60,9 +60,9 @@ services:
       - ./dotenv/auth-service.env
     depends_on:
       db:
-        condition: service_started
+        condition: service_healthy
       rabbitmq:
-        condition: service_started
+        condition: service_healthy
     networks:
       - jungle-do-network
 
@@ -85,9 +85,9 @@ services:
       - ./dotenv/tasks-service.env
     depends_on:
       db:
-        condition: service_started
+        condition: service_healthy
       rabbitmq:
-        condition: service_started
+        condition: service_healthy
     networks:
       - jungle-do-network
 
@@ -110,9 +110,9 @@ services:
       - ./dotenv/notifications-service.env
     depends_on:
       db:
-        condition: service_started
+        condition: service_healthy
       rabbitmq:
-        condition: service_started
+        condition: service_healthy
     networks:
       - jungle-do-network
 
@@ -129,6 +129,11 @@ services:
       - postgres_data:/var/lib/postgresql/data
     env_file:
       - ./dotenv/db.env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   rabbitmq:
     image: rabbitmq:4.1.6-management-alpine
@@ -144,6 +149,11 @@ services:
       - ./dotenv/rabbitmq.env
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
 
 volumes:
   postgres_data:
