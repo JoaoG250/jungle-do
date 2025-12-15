@@ -34,6 +34,9 @@ export class User {
   @ManyToMany(() => Task, (task) => task.assignees)
   assignedTasks: Task[];
 
+  @OneToMany(() => Task, (task) => task.author)
+  createdTasks: Task[];
+
   @OneToMany(() => Comment, (comment) => comment.author)
   comments: Comment[];
 }

@@ -3,7 +3,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { TasksModule } from "./tasks/tasks.module";
 import { validationSchema, ConfigKeys } from "./config.schema";
-import { Task, Comment, User } from "@repo/db";
+import { Task, Comment, User, AuditLog } from "@repo/db";
 
 @Module({
   imports: [
@@ -20,7 +20,7 @@ import { Task, Comment, User } from "@repo/db";
         username: configService.get<string>(ConfigKeys.POSTGRES_USER),
         password: configService.get<string>(ConfigKeys.POSTGRES_PASSWORD),
         database: configService.get<string>(ConfigKeys.POSTGRES_DB),
-        entities: [Task, Comment, User],
+        entities: [Task, Comment, User, AuditLog],
         synchronize: true,
       }),
       inject: [ConfigService],

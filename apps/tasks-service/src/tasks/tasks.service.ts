@@ -20,6 +20,9 @@ import {
 } from "@repo/common/dto/notifications-rpc";
 import { plainToInstance } from "class-transformer";
 
+import { ClsService } from "nestjs-cls";
+import { CLS_KEYS } from "@repo/common/constants";
+
 @Injectable()
 export class TasksService {
   constructor(
@@ -31,12 +34,16 @@ export class TasksService {
     private readonly userRepository: Repository<User>,
     @Inject(RABBITMQ_CLIENTS.NOTIFICATIONS_SERVICE)
     private readonly client: ClientProxy,
+    private readonly cls: ClsService,
   ) {}
 
   async create(createTaskDto: CreateTaskRpcDto): Promise<Task> {
-    const { assigneeIds, ...taskData } = createTaskDto;
+    const { assigneeIds, authorId, ...taskData } = createTaskDto;
+    this.cls.set(CLS_KEYS.USER_ID, authorId);
+
     const task = this.taskRepository.create({
       ...taskData,
+      authorId,
       assignees: assigneeIds?.map((id) => ({ id })) || [],
     });
     const savedTask = await this.taskRepository.save(task);
@@ -98,7 +105,9 @@ export class TasksService {
   }
 
   async update(id: string, updateTaskDto: UpdateTaskRpcDto): Promise<Task> {
-    const { assigneeIds, ...updateData } = updateTaskDto;
+    const { assigneeIds, authorId, ...updateData } = updateTaskDto;
+    this.cls.set(CLS_KEYS.USER_ID, authorId);
+
     const task = await this.taskRepository.preload({
       id,
       ...updateData,

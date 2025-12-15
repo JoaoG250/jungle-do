@@ -6,11 +6,7 @@ import {
 } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
 import { firstValueFrom, catchError } from "rxjs";
-import {
-  CreateTaskDto,
-  UpdateTaskDto,
-  CreateCommentDto,
-} from "@repo/common/dto/tasks";
+import { CreateCommentDto } from "@repo/common/dto/tasks";
 import {
   CreateTaskRpcDto,
   ListTasksRpcDto,
@@ -27,12 +23,11 @@ export class TasksService {
     private readonly client: ClientProxy,
   ) {}
 
-  async create(createTaskDto: CreateTaskDto): Promise<Task> {
-    const payload: CreateTaskRpcDto = { ...createTaskDto };
+  async create(createTaskDto: CreateTaskRpcDto): Promise<Task> {
     return firstValueFrom(
       this.client.send<Task, CreateTaskRpcDto>(
         RPC_TASK_PATTERNS.CREATE_TASK,
-        payload,
+        createTaskDto,
       ),
     );
   }
@@ -48,14 +43,13 @@ export class TasksService {
     );
   }
 
-  async update(id: string, dto: UpdateTaskDto): Promise<Task> {
-    const payload: UpdateTaskRpcDto = { ...dto };
+  async update(id: string, updateTaskDto: UpdateTaskRpcDto): Promise<Task> {
     return firstValueFrom(
       this.client
         .send<
           Task,
           { id: string; dto: UpdateTaskRpcDto }
-        >(RPC_TASK_PATTERNS.UPDATE_TASK, { id, dto: payload })
+        >(RPC_TASK_PATTERNS.UPDATE_TASK, { id, dto: updateTaskDto })
         .pipe(
           catchError((error) => {
             if (error?.status === HttpStatus.NOT_FOUND) {

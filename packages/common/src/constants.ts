@@ -70,3 +70,21 @@ export const WEBSOCKET_EVENTS = {
   TASK_UPDATED: "task:updated",
   COMMENT_NEW: "comment:new",
 } as const;
+
+export const AUDIT_ACTION = {
+  CREATE: "CREATE",
+  UPDATE: "UPDATE",
+  DELETE: "DELETE",
+} as const;
+
+export type AuditAction = (typeof AUDIT_ACTION)[keyof typeof AUDIT_ACTION];
+
+export const RESOURCE_TYPE = {
+  TASK: "TASK",
+} as const;
+
+export type ResourceType = (typeof RESOURCE_TYPE)[keyof typeof RESOURCE_TYPE];
+
+export const CLS_KEYS = {
+  USER_ID: "userId",
+} as const;

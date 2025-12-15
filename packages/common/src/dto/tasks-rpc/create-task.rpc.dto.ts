@@ -32,4 +32,8 @@ export class CreateTaskRpcDto {
   @IsString({ each: true })
   @IsOptional()
   assigneeIds?: string[];
+
+  @IsString()
+  @IsOptional()
+  authorId?: string;
 }

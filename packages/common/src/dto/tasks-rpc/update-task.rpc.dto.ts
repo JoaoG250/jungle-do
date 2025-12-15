@@ -26,4 +26,8 @@ export class UpdateTaskRpcDto {
   @IsString({ each: true })
   @IsOptional()
   assigneeIds?: string[];
+
+  @IsString()
+  @IsOptional()
+  authorId?: string;
 }

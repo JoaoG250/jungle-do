@@ -7,6 +7,8 @@ import {
   OneToMany,
   ManyToMany,
   JoinTable,
+  ManyToOne,
+  JoinColumn,
 } from "typeorm";
 import { Comment } from "./comment.entity";
 import { User } from "./user.entity";
@@ -63,4 +65,11 @@ export class Task {
 
   @OneToMany(() => Comment, (comment) => comment.task)
   comments: Comment[];
+
+  @Column({ name: "author_id", nullable: true })
+  authorId: string;
+
+  @ManyToOne(() => User, (user) => user.createdTasks)
+  @JoinColumn({ name: "author_id" })
+  author: User;
 }

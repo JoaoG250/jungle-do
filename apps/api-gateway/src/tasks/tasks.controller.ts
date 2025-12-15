@@ -12,6 +12,7 @@ import {
   HttpStatus,
   HttpCode,
 } from "@nestjs/common";
+import { ApiBearerAuth } from "@nestjs/swagger";
 import { plainToInstance } from "class-transformer";
 import { AuthGuard } from "@nestjs/passport";
 import {
@@ -25,14 +26,21 @@ import { ListTasksRpcDto } from "@repo/common/dto/tasks-rpc";
 import { TasksService } from "./tasks.service";
 import type { HttpRequest } from "src/types";
 
+@ApiBearerAuth()
 @Controller("tasks")
 @UseGuards(AuthGuard("jwt"))
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
   @Post()
-  async create(@Body() createTaskDto: CreateTaskDto): Promise<TaskResponse> {
-    const task = await this.tasksService.create(createTaskDto);
+  async create(
+    @Body() createTaskDto: CreateTaskDto,
+    @Request() req: HttpRequest,
+  ): Promise<TaskResponse> {
+    const task = await this.tasksService.create({
+      ...createTaskDto,
+      authorId: req.user.id,
+    });
     return plainToInstance(TaskResponse, task, {
       excludeExtraneousValues: true,
     });
@@ -55,8 +63,12 @@ export class TasksController {
   async update(
     @Param("id") id: string,
     @Body() updateTaskDto: UpdateTaskDto,
+    @Request() req: HttpRequest,
   ): Promise<TaskResponse> {
-    const task = await this.tasksService.update(id, updateTaskDto);
+    const task = await this.tasksService.update(id, {
+      ...updateTaskDto,
+      authorId: req.user.id,
+    });
     return plainToInstance(TaskResponse, task, {
       excludeExtraneousValues: true,
     });
