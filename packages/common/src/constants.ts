@@ -24,7 +24,7 @@ export const RPC_TASK_PATTERNS = {
   DELETE_TASK: "tasks.delete_task",
 } as const;
 
-export const WEBSOCKET_NOTIFICATION_PATTERNS = {
+export const RPC_NOTIFICATION_PATTERNS = {
   TASK_CREATED: "task.created",
   TASK_UPDATED: "task.updated",
   COMMENT_CREATED: "comment.created",
@@ -58,3 +58,9 @@ export const NOTIFICATION_TYPE = {
 
 export type NotificationType =
   (typeof NOTIFICATION_TYPE)[keyof typeof NOTIFICATION_TYPE];
+
+export const WEBSOCKET_EVENTS = {
+  TASK_CREATED: "task:created",
+  TASK_UPDATED: "task:updated",
+  COMMENT_NEW: "comment:new",
+} as const;

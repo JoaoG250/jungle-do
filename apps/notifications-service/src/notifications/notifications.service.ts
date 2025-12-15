@@ -3,7 +3,11 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Notification, Task, Comment } from "@repo/db";
 import { NotificationsGateway } from "./notifications.gateway";
-import { NOTIFICATION_TYPE, NotificationType } from "@repo/common/constants";
+import {
+  NOTIFICATION_TYPE,
+  NotificationType,
+  WEBSOCKET_EVENTS,
+} from "@repo/common/constants";
 
 @Injectable()
 export class NotificationsService {
@@ -75,6 +79,23 @@ export class NotificationsService {
       isRead: false,
     });
     await this.notificationRepository.save(notification);
-    this.notificationsGateway.notifyUser(userId, "notification", notification);
+    const event = this.getWebSocketEvent(type);
+    this.notificationsGateway.notifyUser(userId, event, notification);
+  }
+
+  private getWebSocketEvent(type: NotificationType) {
+    let event = "notification";
+    switch (type) {
+      case NOTIFICATION_TYPE.TASK_ASSIGNED:
+        event = WEBSOCKET_EVENTS.TASK_CREATED;
+        break;
+      case NOTIFICATION_TYPE.TASK_UPDATED:
+        event = WEBSOCKET_EVENTS.TASK_UPDATED;
+        break;
+      case NOTIFICATION_TYPE.COMMENT_CREATED:
+        event = WEBSOCKET_EVENTS.COMMENT_NEW;
+        break;
+    }
+    return event;
   }
 }

@@ -4,7 +4,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Task, Comment, User } from "@repo/db";
 import {
-  WEBSOCKET_NOTIFICATION_PATTERNS,
+  RPC_NOTIFICATION_PATTERNS,
   RABBITMQ_CLIENTS,
 } from "@repo/common/constants";
 import {
@@ -34,7 +34,7 @@ export class TasksService {
       assignees: assigneeIds?.map((id) => ({ id })) || [],
     });
     const savedTask = await this.taskRepository.save(task);
-    this.client.emit(WEBSOCKET_NOTIFICATION_PATTERNS.TASK_CREATED, savedTask);
+    this.client.emit(RPC_NOTIFICATION_PATTERNS.TASK_CREATED, savedTask);
     return savedTask;
   }
 
@@ -102,7 +102,7 @@ export class TasksService {
       });
     }
     const savedTask = await this.taskRepository.save(task);
-    this.client.emit(WEBSOCKET_NOTIFICATION_PATTERNS.TASK_UPDATED, savedTask);
+    this.client.emit(RPC_NOTIFICATION_PATTERNS.TASK_UPDATED, savedTask);
     return savedTask;
   }
 
@@ -146,10 +146,7 @@ export class TasksService {
       task: { id: taskId },
     });
     const savedComment = await this.commentRepository.save(comment);
-    this.client.emit(
-      WEBSOCKET_NOTIFICATION_PATTERNS.COMMENT_CREATED,
-      savedComment,
-    );
+    this.client.emit(RPC_NOTIFICATION_PATTERNS.COMMENT_CREATED, savedComment);
     return savedComment;
   }
 
