@@ -8,8 +8,9 @@ import {
 import { PRIORITY, STATUS } from "../../constants";
 import type { Priority, Status } from "../../constants";
 import { ApiProperty } from "@nestjs/swagger";
+import type { CreateTaskDto as ICreateTaskDto } from "@repo/types/tasks";
 
-export class CreateTaskDto {
+export class CreateTaskDto implements ICreateTaskDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()

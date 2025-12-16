@@ -1,8 +1,13 @@
 import { Exclude, Expose } from "class-transformer";
 import { ApiProperty } from "@nestjs/swagger";
+import type {
+  RegisterResponse as IRegisterResponse,
+  LoginResponse as ILoginResponse,
+  UserResponse as IUserResponse,
+} from "@repo/types/auth";
 
 @Exclude()
-export class RegisterResponse {
+export class RegisterResponse implements IRegisterResponse {
   @ApiProperty()
   @Expose()
   id: string;
@@ -17,14 +22,14 @@ export class RegisterResponse {
 }
 
 @Exclude()
-export class LoginResponse {
+export class LoginResponse implements ILoginResponse {
   @ApiProperty()
   @Expose()
   accessToken: string;
 }
 
 @Exclude()
-export class UserResponse {
+export class UserResponse implements IUserResponse {
   @ApiProperty()
   @Expose()
   id: string;

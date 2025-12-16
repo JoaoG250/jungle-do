@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { jwtDecode } from "jwt-decode";
-import type { JwtPayload, AuthUser } from "@repo/common/types/auth";
+import type { JwtPayload, AuthUser } from "@repo/types/auth";
 import { authService } from "@/services/auth.service";
 
 interface AuthState {

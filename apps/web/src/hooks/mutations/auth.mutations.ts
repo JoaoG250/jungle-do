@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { authService } from "@/services/auth.service";
-import type { CreateUserDto, LoginDto } from "@repo/common/dto/auth";
+import type { CreateUserDto, LoginDto } from "@repo/types/auth";
 
 export const useLoginMutation = () => {
   return useMutation({

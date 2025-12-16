@@ -2,8 +2,9 @@ import { IsString, IsOptional, IsEnum, IsArray } from "class-validator";
 import { PRIORITY, STATUS } from "../../constants";
 import type { Priority, Status } from "../../constants";
 import { ApiProperty } from "@nestjs/swagger";
+import type { UpdateTaskDto as IUpdateTaskDto } from "@repo/types/tasks";
 
-export class UpdateTaskDto {
+export class UpdateTaskDto implements IUpdateTaskDto {
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()

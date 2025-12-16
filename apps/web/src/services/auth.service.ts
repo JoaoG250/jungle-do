@@ -1,11 +1,11 @@
 import api from "@/lib/axios";
-import {
+import type {
   LoginDto,
   CreateUserDto,
   LoginResponse,
   RegisterResponse,
   UserResponse,
-} from "@repo/common/dto/auth";
+} from "@repo/types/auth";
 
 export const authService = {
   login: async (data: LoginDto): Promise<LoginResponse> => {
