@@ -14,10 +14,16 @@ import cookieParser from "cookie-parser";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.use(cookieParser());
-  app.useGlobalPipes(new ValidationPipe());
   const configService = app.get<ConfigService>(ConfigService);
 
+  app.enableCors({
+    origin: configService.get<string>(ConfigKeys.ALLOWED_ORIGINS),
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  });
+  app.use(cookieParser());
+  app.useGlobalPipes(new ValidationPipe());
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ,
     options: {

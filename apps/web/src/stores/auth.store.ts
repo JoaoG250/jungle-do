@@ -12,7 +12,7 @@ interface AuthState {
 interface AuthActions {
   login: (accessToken: string) => void;
   logout: () => void;
-  checkAuth: () => Promise<void>;
+  refreshAccessToken: () => Promise<void>;
 }
 
 const initialState: AuthState = {
@@ -21,17 +21,15 @@ const initialState: AuthState = {
   isAuthenticated: false,
 };
 
-export const useAuthStore = create<AuthState & AuthActions>((set) => ({
+export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
   ...initialState,
   login: (accessToken) => {
     try {
-      const decoded = jwtDecode<JwtPayload>(accessToken);
-      const user: AuthUser = {
-        id: decoded.sub,
-        email: decoded.email,
-        username: decoded.username,
-      };
-      set({ accessToken, user, isAuthenticated: true });
+      set({
+        accessToken,
+        user: decodeToken(accessToken),
+        isAuthenticated: true,
+      });
     } catch (error) {
       console.error("Failed to decode token", error);
       set({ ...initialState });
@@ -40,20 +38,22 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
   logout: () => {
     set({ ...initialState });
   },
-  checkAuth: async () => {
+  refreshAccessToken: async () => {
     try {
       const { accessToken } = await authService.refresh();
-      if (accessToken) {
-        const decoded = jwtDecode<JwtPayload>(accessToken);
-        const user: AuthUser = {
-          id: decoded.sub,
-          email: decoded.email,
-          username: decoded.username,
-        };
-        set({ accessToken, user, isAuthenticated: true });
-      }
+      get().login(accessToken);
     } catch {
       set({ ...initialState });
     }
   },
 }));
+
+function decodeToken(accessToken: string): AuthUser {
+  const decoded = jwtDecode<JwtPayload>(accessToken);
+  const user: AuthUser = {
+    id: decoded.sub,
+    email: decoded.email,
+    username: decoded.username,
+  };
+  return user;
+}

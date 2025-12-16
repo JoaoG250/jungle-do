@@ -16,12 +16,20 @@ import { useLoginMutation } from "@/hooks/mutations/auth.mutations";
 import { loginSchema, type LoginSchema } from "@/validation/schemas";
 import { useAuthStore } from "@/stores/auth.store";
 
+import { z } from "zod";
+
+const searchSchema = z.object({
+  redirect: z.string().optional(),
+});
+
 export const Route = createFileRoute("/_auth/login")({
+  validateSearch: (search) => searchSchema.parse(search),
   component: LoginPage,
 });
 
 function LoginPage() {
   const router = useRouter();
+  const search = Route.useSearch();
   const login = useAuthStore((state) => state.login);
   const { mutateAsync: loginUser, isPending } = useLoginMutation();
 
@@ -37,7 +45,7 @@ function LoginPage() {
     try {
       const data = await loginUser(values);
       login(data.accessToken);
-      router.navigate({ to: "/" });
+      router.navigate({ to: search.redirect || "/" });
     } catch (error) {
       console.error(error);
       form.setError("root", { message: "Invalid email or password" });
@@ -103,6 +111,7 @@ function LoginPage() {
           Don't have an account?{" "}
           <Link
             to="/register"
+            search={{ redirect: search.redirect }}
             className="underline underline-offset-4 hover:text-primary"
           >
             Register

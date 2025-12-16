@@ -9,7 +9,7 @@ import { useAuthStore } from "@/stores/auth.store";
 
 const queryClient = new QueryClient();
 
-useAuthStore.getState().checkAuth();
+useAuthStore.getState().refreshAccessToken();
 
 const router = createRouter({
   routeTree,

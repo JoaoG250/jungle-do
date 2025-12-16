@@ -20,12 +20,20 @@ import {
 import { useRegisterMutation } from "@/hooks/mutations/auth.mutations";
 import { registerSchema, type RegisterSchema } from "@/validation/schemas";
 
+import { z } from "zod";
+
+const searchSchema = z.object({
+  redirect: z.string().optional(),
+});
+
 export const Route = createFileRoute("/_auth/register")({
+  validateSearch: (search) => searchSchema.parse(search),
   component: RegisterPage,
 });
 
 function RegisterPage() {
   const router = useRouter();
+  const search = Route.useSearch();
   const { mutateAsync: registerUser, isPending } = useRegisterMutation();
 
   const form = useForm<RegisterSchema>({
@@ -40,7 +48,7 @@ function RegisterPage() {
   async function onSubmit(values: RegisterSchema) {
     try {
       await registerUser(values);
-      router.navigate({ to: "/login" });
+      router.navigate({ to: "/login", search: { redirect: search.redirect } });
     } catch (error) {
       console.error(error);
       form.setError("root", { message: "Registration failed. Try again." });
@@ -124,6 +132,7 @@ function RegisterPage() {
           Already have an account?{" "}
           <Link
             to="/login"
+            search={{ redirect: search.redirect }}
             className="underline underline-offset-4 hover:text-primary"
           >
             Login

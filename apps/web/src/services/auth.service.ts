@@ -1,4 +1,4 @@
-import api from "@/lib/axios";
+import { api, apiClient } from "@/lib/axios";
 import type {
   LoginDto,
   CreateUserDto,
@@ -13,6 +13,10 @@ export const authService = {
     return response.data;
   },
 
+  logout: async (): Promise<void> => {
+    await api.post<void>("/auth/logout");
+  },
+
   register: async (data: CreateUserDto): Promise<RegisterResponse> => {
     const response = await api.post<RegisterResponse>("/auth/register", data);
     return response.data;
@@ -24,7 +28,7 @@ export const authService = {
   },
 
   profile: async (): Promise<UserResponse> => {
-    const response = await api.get<UserResponse>("/auth/profile");
+    const response = await apiClient.get<UserResponse>("/auth/profile");
     return response.data;
   },
 };
