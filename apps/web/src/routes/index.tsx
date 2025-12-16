@@ -4,6 +4,7 @@ import { useAuthStore } from "@/stores/auth.store";
 
 import { useEffect } from "react";
 import { Spinner } from "@repo/ui/components/spinner";
+import { KanbanBoard } from "@/components/kanban/KanbanBoard";
 
 export const Route = createFileRoute("/")({
   beforeLoad: ({ location }) => {
@@ -21,20 +22,20 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const { isLoading, isAuthenticated } = useAuthStore();
+  const { isLoading: isAuthLoading, isAuthenticated } = useAuthStore();
   const logout = useAuthStore((state) => state.logout);
   const navigate = Route.useNavigate();
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+    if (!isAuthLoading && !isAuthenticated) {
       navigate({
         to: "/login",
         search: { redirect: window.location.href },
       });
     }
-  }, [isLoading, isAuthenticated, navigate]);
+  }, [isAuthLoading, isAuthenticated, navigate]);
 
-  if (isLoading) {
+  if (isAuthLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
         <Spinner className="h-8 w-8 text-primary" />
@@ -43,9 +44,20 @@ function Index() {
   }
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-4">Início</h1>
-      <Button onClick={logout}>Sair</Button>
+    <div className="flex flex-col h-screen overflow-hidden">
+      <header className="border-b px-6 py-3 flex items-center justify-between bg-card">
+        <div className="flex items-center gap-2">
+          <h1 className="text-xl font-bold">Jungle Do</h1>
+        </div>
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="sm" onClick={logout}>
+            Sair
+          </Button>
+        </div>
+      </header>
+      <main className="flex-1 overflow-hidden p-6 bg-background">
+        <KanbanBoard />
+      </main>
     </div>
   );
 }
