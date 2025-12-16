@@ -7,6 +7,7 @@ interface AuthState {
   user: AuthUser | null;
   accessToken: string | null;
   isAuthenticated: boolean;
+  isLoading: boolean;
 }
 
 interface AuthActions {
@@ -19,6 +20,7 @@ const initialState: AuthState = {
   user: null,
   accessToken: null,
   isAuthenticated: false,
+  isLoading: true,
 };
 
 export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
@@ -29,21 +31,22 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
         accessToken,
         user: decodeToken(accessToken),
         isAuthenticated: true,
+        isLoading: false,
       });
     } catch (error) {
       console.error("Failed to decode token", error);
-      set({ ...initialState });
+      get().logout();
     }
   },
   logout: () => {
-    set({ ...initialState });
+    set({ ...initialState, isLoading: false });
   },
   refreshAccessToken: async () => {
     try {
       const { accessToken } = await authService.refresh();
       get().login(accessToken);
     } catch {
-      set({ ...initialState });
+      get().logout();
     }
   },
 }));
