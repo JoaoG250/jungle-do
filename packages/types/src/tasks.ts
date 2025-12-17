@@ -18,6 +18,15 @@ export interface UpdateTaskDto {
   assigneeIds?: string[];
 }
 
+export interface TaskFilters {
+  page?: number;
+  limit?: number;
+  status?: Status;
+  priority?: Priority;
+  search?: string;
+  assigneeId?: string;
+}
+
 export interface CreateCommentDto {
   content: string;
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -13,6 +13,7 @@ import {
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { KanbanColumn } from "./KanbanColumn";
 import { TaskCard } from "./TaskCard";
+import { TaskFilters } from "./TaskFilters";
 import { TaskFormDialog } from "../tasks/TaskFormDialog";
 import { DeleteTaskDialog } from "../tasks/DeleteTaskDialog";
 import { Button } from "@repo/ui/components/button";
@@ -23,7 +24,11 @@ import {
   useDeleteTaskMutation,
 } from "@/hooks/mutations/tasks.mutations";
 import { STATUS, type Status } from "@repo/types/constants";
-import type { TaskResponse, CreateTaskDto } from "@repo/types/tasks";
+import type {
+  TaskResponse,
+  CreateTaskDto,
+  TaskFilters as ITaskFilters,
+} from "@repo/types/tasks";
 import { Plus } from "lucide-react";
 import { Spinner } from "@repo/ui/components/spinner";
 
@@ -35,7 +40,17 @@ const columns = [
 ];
 
 export function KanbanBoard() {
-  const { data: tasks, isLoading } = useTasksQuery();
+  const [filters, setFilters] = useState<ITaskFilters>({});
+  const [debouncedFilters, setDebouncedFilters] = useState(filters);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedFilters(filters);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [filters]);
+
+  const { data: tasks, isLoading } = useTasksQuery(debouncedFilters);
   const createTaskMutation = useCreateTaskMutation();
   const updateTaskMutation = useUpdateTaskMutation();
   const deleteTaskMutation = useDeleteTaskMutation();
@@ -141,7 +156,7 @@ export function KanbanBoard() {
   }
 
   return (
-    <div className="h-full flex flex-col space-y-4">
+    <div className="h-full flex flex-col space-y-4 container mx-auto">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Quadro de Tarefas</h2>
         <Button onClick={() => setIsCreateOpen(true)}>
@@ -150,15 +165,17 @@ export function KanbanBoard() {
         </Button>
       </div>
 
+      <TaskFilters filters={filters} onFilterChange={setFilters} />
+
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex h-full gap-4 overflow-x-auto pb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 h-full overflow-y-auto xl:overflow-hidden pb-4">
           {columns.map((col) => (
-            <div key={col.id} className="w-[300px] flex-shrink-0">
+            <div key={col.id} className="h-full min-h-[500px] xl:min-h-0">
               <KanbanColumn
                 id={col.id}
                 title={col.title}
@@ -179,7 +196,7 @@ export function KanbanBoard() {
           ))}
         </div>
 
-        <DragOverlay>
+        <DragOverlay dropAnimation={null}>
           {activeTask ? (
             <TaskCard task={activeTask} onEdit={() => {}} onDelete={() => {}} />
           ) : null}

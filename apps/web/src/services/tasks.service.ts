@@ -5,12 +5,26 @@ import type {
   TaskResponse,
   CommentResponse,
   CreateCommentDto,
+  TaskFilters,
 } from "@repo/types/tasks";
 import type { PageResponse } from "@repo/types/pagination";
 
 export const tasksService = {
-  getTasks: async (): Promise<PageResponse<TaskResponse>> => {
-    const response = await api.get<PageResponse<TaskResponse>>("/tasks");
+  getTasks: async (
+    filters?: TaskFilters
+  ): Promise<PageResponse<TaskResponse>> => {
+    const params = new URLSearchParams();
+    if (filters) {
+      if (filters.page) params.append("page", filters.page.toString());
+      if (filters.limit) params.append("limit", filters.limit.toString());
+      if (filters.status) params.append("status", filters.status);
+      if (filters.priority) params.append("priority", filters.priority);
+      if (filters.search) params.append("search", filters.search);
+      if (filters.assigneeId) params.append("assigneeId", filters.assigneeId);
+    }
+    const response = await api.get<PageResponse<TaskResponse>>(
+      `/tasks?${params.toString()}`
+    );
     return response.data;
   },
 
