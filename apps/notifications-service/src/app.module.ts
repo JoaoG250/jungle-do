@@ -5,9 +5,11 @@ import { NotificationsModule } from "./notifications/notifications.module";
 import { validationSchema, ConfigKeys } from "./config.schema";
 import { Notification, Task, Comment, User, AuditLog } from "@repo/db";
 import { join, dirname } from "path";
+import { LoggerModule } from "@repo/common/logger";
 
 @Module({
   imports: [
+    LoggerModule,
     ConfigModule.forRoot({
       validationSchema,
       isGlobal: true,

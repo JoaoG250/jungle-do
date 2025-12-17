@@ -9,6 +9,7 @@ import {
   Res,
   HttpCode,
   HttpStatus,
+  Logger,
 } from "@nestjs/common";
 import type { Response } from "express";
 import { AuthService } from "./auth.service";
@@ -27,10 +28,12 @@ import { plainToInstance } from "class-transformer";
 
 @Controller("auth")
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
   constructor(private authService: AuthService) {}
 
   @Post("register")
   async register(@Body() body: CreateUserDto): Promise<RegisterResponse> {
+    this.logger.log(`Registering user ${body.email}`);
     const user = await this.authService.createUser(
       body.username,
       body.email,
@@ -46,6 +49,7 @@ export class AuthController {
     @Body() body: LoginDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<LoginResponse> {
+    this.logger.log(`Logging in user ${body.email}`);
     const user = await this.authService.validateUser(body.email, body.password);
     if (!user) {
       throw new UnauthorizedException("Invalid credentials");

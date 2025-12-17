@@ -10,7 +10,8 @@
     "./dto/tasks": "./dist/src/dto/tasks/index.js",
     "./dto/tasks-rpc": "./dist/src/dto/tasks-rpc/index.js",
     "./dto/notifications": "./dist/src/dto/notifications/index.js",
-    "./dto/notifications-rpc": "./dist/src/dto/notifications-rpc/index.js"
+    "./dto/notifications-rpc": "./dist/src/dto/notifications-rpc/index.js",
+    "./logger": "./dist/src/logger/index.js"
   },
   "scripts": {
     "build": "tsc",
@@ -19,10 +20,15 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "@repo/types": "workspace:*",
+    "@nestjs/common": "^11.0.1",
+    "@nestjs/core": "^11.0.1",
     "@nestjs/swagger": "^11.2.3",
+    "@repo/types": "workspace:*",
     "class-transformer": "^0.5.1",
-    "class-validator": "^0.14.1"
+    "class-validator": "^0.14.1",
+    "nestjs-pino": "^4.5.0",
+    "pino-http": "^11.0.0",
+    "pino-pretty": "^13.1.3"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",

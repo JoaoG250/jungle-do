@@ -1,8 +1,8 @@
-import { Injectable, Inject } from "@nestjs/common";
+import { Injectable, Inject, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { ClientProxy } from "@nestjs/microservices";
 import { Repository } from "typeorm";
-import { Notification, Task, Comment } from "@repo/db";
+import { Notification, Task } from "@repo/db";
 import {
   NOTIFICATION_TYPE,
   NotificationType,
@@ -17,6 +17,8 @@ import {
 
 @Injectable()
 export class NotificationsService {
+  private readonly logger = new Logger(NotificationsService.name);
+
   constructor(
     @InjectRepository(Notification)
     private readonly notificationRepository: Repository<Notification>,
@@ -90,5 +92,6 @@ export class NotificationsService {
       RPC_API_GATEWAY_PATTERNS.NOTIFICATION_CREATED,
       notification,
     );
+    this.logger.log(`Notification sent to user ${userId} type ${type}`);
   }
 }

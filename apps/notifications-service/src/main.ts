@@ -5,6 +5,7 @@ import { RABBITMQ_QUEUES } from "@repo/common/constants";
 import { ConfigService } from "@nestjs/config";
 import { ConfigKeys } from "./config.schema";
 import { ValidationPipe } from "@nestjs/common";
+import { Logger } from "@repo/common/logger";
 
 async function bootstrap() {
   const appContext = await NestFactory.createApplicationContext(AppModule);
@@ -13,6 +14,7 @@ async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule,
     {
+      bufferLogs: true,
       transport: Transport.RMQ,
       options: {
         urls: [configService.get<string>(ConfigKeys.RABBITMQ_URL)],
@@ -24,6 +26,7 @@ async function bootstrap() {
       },
     },
   );
+  app.useLogger(app.get(Logger));
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
   await app.listen();
 }

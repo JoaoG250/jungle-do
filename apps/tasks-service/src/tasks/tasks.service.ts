@@ -1,4 +1,4 @@
-import { Injectable, Inject, HttpStatus } from "@nestjs/common";
+import { Injectable, Inject, HttpStatus, Logger } from "@nestjs/common";
 import { RpcException, ClientProxy } from "@nestjs/microservices";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -27,6 +27,8 @@ import { CLS_KEYS } from "@repo/common/constants";
 
 @Injectable()
 export class TasksService {
+  private readonly logger = new Logger(TasksService.name);
+
   constructor(
     @InjectRepository(Task)
     private readonly taskRepository: Repository<Task>,
@@ -43,6 +45,9 @@ export class TasksService {
     const { assigneeIds, authorId, ...taskData } = createTaskDto;
     this.cls.set(CLS_KEYS.USER_ID, authorId);
 
+    this.logger.log(
+      `Creating task for user ${authorId} with data: ${JSON.stringify(taskData)}`,
+    );
     const task = this.taskRepository.create({
       ...taskData,
       authorId,
@@ -117,6 +122,9 @@ export class TasksService {
     const { assigneeIds, authorId, ...updateData } = updateTaskDto;
     this.cls.set(CLS_KEYS.USER_ID, authorId);
 
+    this.logger.log(
+      `Updating task for user ${authorId} with data: ${JSON.stringify(updateData)}`,
+    );
     const task = await this.taskRepository.preload({
       id,
       ...updateData,
@@ -137,6 +145,7 @@ export class TasksService {
   }
 
   async remove(id: string): Promise<boolean> {
+    this.logger.log(`Removing task ${id}`);
     const result = await this.taskRepository.delete(id);
     if (result.affected === 0) {
       throw new RpcException({
@@ -150,6 +159,9 @@ export class TasksService {
   async createComment(createCommentDto: CreateCommentRpcDto): Promise<Comment> {
     const { authorId, taskId, ...commentData } = createCommentDto;
 
+    this.logger.log(
+      `Creating comment for user ${authorId} for task ${taskId} with data: ${JSON.stringify(commentData)}`,
+    );
     const taskExists = await this.taskRepository.findOne({
       where: { id: taskId },
     });

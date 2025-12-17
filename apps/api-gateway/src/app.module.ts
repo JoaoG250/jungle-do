@@ -7,9 +7,11 @@ import { validationSchema } from "./config.schema";
 import { AuthModule } from "./auth/auth.module";
 import { TasksModule } from "./tasks/tasks.module";
 import { NotificationsModule } from "./notifications/notifications.module";
+import { LoggerModule } from "@repo/common/logger";
 
 @Module({
   imports: [
+    LoggerModule,
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema,

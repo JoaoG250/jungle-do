@@ -9,13 +9,14 @@ import {
 } from "@repo/common/constants";
 import { AppModule } from "./app.module";
 import { ConfigKeys } from "./config.schema";
-
 import cookieParser from "cookie-parser";
+import { Logger } from "@repo/common/logger";
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
   const configService = app.get<ConfigService>(ConfigService);
 
+  app.useLogger(app.get(Logger));
   app.enableCors({
     origin: configService.get<string>(ConfigKeys.ALLOWED_ORIGINS),
     credentials: true,

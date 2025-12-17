@@ -5,7 +5,7 @@ import {
   OnGatewayDisconnect,
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { AuthService } from "../auth/auth.service";
 
 @Injectable()
@@ -15,15 +15,16 @@ export class NotificationsGateway
 {
   @WebSocketServer()
   server: Server;
+  private readonly logger = new Logger(NotificationsGateway.name);
 
   constructor(private readonly authService: AuthService) {}
 
   async handleConnection(client: Socket) {
-    console.log(`Client connecting: ${client.id}`);
+    this.logger.log(`Client connecting: ${client.id}`);
 
     const token = this.extractToken(client);
     if (!token) {
-      console.log(`Client ${client.id} - No token provided`);
+      this.logger.log(`Client ${client.id} - No token provided`);
       client.disconnect();
       return;
     }
@@ -36,7 +37,7 @@ export class NotificationsGateway
       const roomSize =
         this.server.sockets.adapter.rooms.get(roomName)?.size || 0;
       if (roomSize >= 3) {
-        console.log(
+        this.logger.log(
           `Client ${client.id} - Connection limit reached for user ${userId}`,
         );
         client.emit("exception", {
@@ -48,7 +49,7 @@ export class NotificationsGateway
       }
 
       await client.join(roomName);
-      console.log(`Client ${client.id} joined room ${roomName}`);
+      this.logger.log(`Client ${client.id} joined room ${roomName}`);
 
       client.onAny((event) => {
         if (event !== "join") {
@@ -56,13 +57,13 @@ export class NotificationsGateway
         }
       });
     } catch (error) {
-      console.log(`Client ${client.id} - Invalid token`, error);
+      this.logger.error(`Client ${client.id} - Invalid token`, error);
       client.disconnect();
     }
   }
 
   handleDisconnect(client: Socket) {
-    console.log(`Client disconnected: ${client.id}`);
+    this.logger.log(`Client disconnected: ${client.id}`);
   }
 
   private extractToken(client: Socket): string | undefined {
@@ -83,5 +84,6 @@ export class NotificationsGateway
 
   notifyUser(userId: string, event: string, payload: any) {
     this.server.to(this.getUserRoom(userId)).emit(event, payload);
+    this.logger.log(`Notifying user ${userId} with event ${event}`);
   }
 }
