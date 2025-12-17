@@ -11,8 +11,7 @@ services:
       - "3000:3000"
     volumes:
       - ./apps/web:/home/node/app/apps/web
-      - /home/node/app/node_modules
-      - /home/node/app/apps/web/node_modules
+      - ./packages:/home/node/app/packages
     environment:
       - NODE_ENV=development
     env_file:
@@ -28,8 +27,7 @@ services:
       - "3001:3001"
     volumes:
       - ./apps/api-gateway:/home/node/app/apps/api-gateway
-      - /home/node/app/node_modules
-      - /home/node/app/apps/api-gateway/node_modules
+      - ./packages:/home/node/app/packages
     environment:
       - NODE_ENV=development
       - PORT=3001
@@ -53,8 +51,7 @@ services:
       - "3002:3002"
     volumes:
       - ./apps/auth-service:/home/node/app/apps/auth-service
-      - /home/node/app/node_modules
-      - /home/node/app/apps/auth-service/node_modules
+      - ./packages:/home/node/app/packages
     environment:
       - NODE_ENV=development
       - PORT=3002
@@ -78,8 +75,7 @@ services:
       - "3003:3003"
     volumes:
       - ./apps/tasks-service:/home/node/app/apps/tasks-service
-      - /home/node/app/node_modules
-      - /home/node/app/apps/tasks-service/node_modules
+      - ./packages:/home/node/app/packages
     environment:
       - NODE_ENV=development
       - PORT=3003
@@ -103,8 +99,7 @@ services:
       - "3004:3004"
     volumes:
       - ./apps/notifications-service:/home/node/app/apps/notifications-service
-      - /home/node/app/node_modules
-      - /home/node/app/apps/notifications-service/node_modules
+      - ./packages:/home/node/app/packages
     environment:
       - NODE_ENV=development
       - PORT=3004

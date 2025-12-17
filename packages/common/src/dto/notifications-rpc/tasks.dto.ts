@@ -1,5 +1,10 @@
-import { IsNotEmpty, IsString, IsObject } from "class-validator";
-import { Expose } from "class-transformer";
+import { IsNotEmpty, IsString } from "class-validator";
+import { Expose, Type } from "class-transformer";
+
+export class AssigneeDto {
+  @Expose()
+  id: string;
+}
 
 export class TaskCreatedRpcDto {
   @Expose()
@@ -13,8 +18,8 @@ export class TaskCreatedRpcDto {
   title: string;
 
   @Expose()
-  @IsObject()
-  assignees: { id: string }[];
+  @Type(() => AssigneeDto)
+  assignees: AssigneeDto[];
 }
 
 export class TaskUpdatedRpcDto {
@@ -29,6 +34,6 @@ export class TaskUpdatedRpcDto {
   title: string;
 
   @Expose()
-  @IsObject()
-  assignees: { id: string }[];
+  @Type(() => AssigneeDto)
+  assignees: AssigneeDto[];
 }
