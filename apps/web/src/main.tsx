@@ -9,7 +9,27 @@ import { useAuthStore } from "@/stores/auth.store";
 
 const queryClient = new QueryClient();
 
-useAuthStore.getState().refreshAccessToken();
+import { socketService } from "@/services/socket.service";
+
+useAuthStore
+  .getState()
+  .refreshAccessToken()
+  .finally(() => {
+    const token = useAuthStore.getState().accessToken;
+    if (token) {
+      socketService.connect(token, queryClient);
+    }
+  });
+
+useAuthStore.subscribe((state, prevState) => {
+  if (state.accessToken !== prevState.accessToken) {
+    if (state.accessToken) {
+      socketService.connect(state.accessToken, queryClient);
+    } else {
+      socketService.disconnect();
+    }
+  }
+});
 
 const router = createRouter({
   routeTree,
