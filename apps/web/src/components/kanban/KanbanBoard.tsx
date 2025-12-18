@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -31,6 +31,7 @@ import type {
 } from "@repo/types/tasks";
 import { Plus } from "lucide-react";
 import { Spinner } from "@repo/ui/components/spinner";
+import { useDebounce } from "@/hooks/use-debounce";
 
 const columns = [
   { id: STATUS.TODO, title: "A Fazer" },
@@ -41,14 +42,7 @@ const columns = [
 
 export function KanbanBoard() {
   const [filters, setFilters] = useState<ITaskFilters>({});
-  const [debouncedFilters, setDebouncedFilters] = useState(filters);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedFilters(filters);
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [filters]);
+  const debouncedFilters = useDebounce(filters, 300);
 
   const { data: tasks, isLoading } = useTasksQuery(debouncedFilters);
   const createTaskMutation = useCreateTaskMutation();

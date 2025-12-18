@@ -1,6 +1,5 @@
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { Button } from "@repo/ui/components/button";
 import {
   Dialog,
@@ -32,21 +31,8 @@ import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@repo/ui/lib/utils";
-
-const formSchema = z.object({
-  title: z.string().min(1, "O título é obrigatório"),
-  description: z.string().optional(),
-  status: z.enum([STATUS.TODO, STATUS.IN_PROGRESS, STATUS.REVIEW, STATUS.DONE]),
-  priority: z.enum([
-    PRIORITY.LOW,
-    PRIORITY.MEDIUM,
-    PRIORITY.HIGH,
-    PRIORITY.URGENT,
-  ]),
-  dueDate: z.date().optional(),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+import { UserMultiSelect } from "../common/UserMultiSelect";
+import { taskSchema, type TaskSchema } from "@/validation/schemas";
 
 interface TaskFormDialogProps {
   open: boolean;
@@ -63,13 +49,14 @@ export function TaskFormDialog({
   task,
   isSubmitting,
 }: TaskFormDialogProps) {
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<TaskSchema>({
+    resolver: zodResolver(taskSchema),
     defaultValues: {
       title: "",
       description: "",
       status: STATUS.TODO,
       priority: PRIORITY.MEDIUM,
+      assigneeIds: [],
     },
   });
 
@@ -81,6 +68,7 @@ export function TaskFormDialog({
         status: task.status,
         priority: task.priority,
         dueDate: task.dueDate ? new Date(task.dueDate) : undefined,
+        assigneeIds: task.assigneeIds || [],
       });
     } else {
       form.reset({
@@ -89,11 +77,12 @@ export function TaskFormDialog({
         status: STATUS.TODO,
         priority: PRIORITY.MEDIUM,
         dueDate: undefined,
+        assigneeIds: [],
       });
     }
   }, [task, form, open]);
 
-  const handleSubmit = (values: FormValues) => {
+  const handleSubmit = (values: TaskSchema) => {
     onSubmit(values);
   };
 
@@ -244,6 +233,21 @@ export function TaskFormDialog({
               </Field>
             )}
           />
+
+          <Controller
+            control={form.control}
+            name="assigneeIds"
+            render={({ field }) => (
+              <Field>
+                <FieldLabel>Atribuir a</FieldLabel>
+                <UserMultiSelect
+                  value={field.value || []}
+                  onChange={field.onChange}
+                />
+              </Field>
+            )}
+          />
+
           <DialogFooter>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? "Salvando..." : "Salvar"}
